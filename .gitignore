@@ -8,6 +8,8 @@ node_modules
 coverage
 *.lcov
 .nyc_output
+test-results/
+playwright-report/
 
 # Next.js
 .next/
@@ -21,18 +23,18 @@ dist
 # Misc
 .DS_Store
 *.pem
+Thumbs.db
 
 # Debug
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# Local env files (do not commit)
+# Environment files (NEVER commit these)
 .env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
+.env.*
+!.env.example
+!.env.production.example
 
 # Vercel
 .vercel
@@ -41,14 +43,14 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# Bun
+# Lock files (keep one)
 bun.lockb
+package-lock.json
+yarn.lock
 
 # IDEs
 .vscode/*
 !.vscode/settings.json
-!.vscode/tasks.json
-!.vscode/launch.json
 !.vscode/extensions.json
 .idea
 *.swp
@@ -58,3 +60,22 @@ bun.lockb
 # Prisma
 prisma/dev.db
 prisma/dev.db-journal
+prisma/*.db
+prisma/*.db-journal
+
+# Claude Code
+.claude/
+
+# Temporary files
+*.tmp
+*.temp
+~*
+
+# OS generated
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+
+# Backup files
+*.backup
+*.bak

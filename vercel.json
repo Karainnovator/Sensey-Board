@@ -1,0 +1,63 @@
+{
+  "buildCommand": "bun run build",
+  "installCommand": "bun install",
+  "framework": "nextjs",
+  "env": {
+    "DATABASE_URL": "@database_url",
+    "DIRECT_URL": "@direct_url",
+    "NEXTAUTH_SECRET": "@nextauth_secret",
+    "NEXTAUTH_URL": "@nextauth_url",
+    "AZURE_AD_CLIENT_ID": "@azure_ad_client_id",
+    "AZURE_AD_CLIENT_SECRET": "@azure_ad_client_secret",
+    "AZURE_AD_TENANT_ID": "@azure_ad_tenant_id",
+    "ANTHROPIC_API_KEY": "@anthropic_api_key",
+    "NODE_ENV": "production"
+  },
+  "build": {
+    "env": {
+      "DATABASE_URL": "@database_url",
+      "DIRECT_URL": "@direct_url",
+      "NEXTAUTH_SECRET": "@nextauth_secret",
+      "NEXTAUTH_URL": "@nextauth_url",
+      "AZURE_AD_CLIENT_ID": "@azure_ad_client_id",
+      "AZURE_AD_CLIENT_SECRET": "@azure_ad_client_secret",
+      "AZURE_AD_TENANT_ID": "@azure_ad_tenant_id",
+      "ANTHROPIC_API_KEY": "@anthropic_api_key"
+    }
+  },
+  "regions": ["iad1"],
+  "functions": {
+    "app/api/**/*.ts": {
+      "maxDuration": 10
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "/api/$1"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "X-XSS-Protection",
+          "value": "1; mode=block"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        }
+      ]
+    }
+  ]
+}

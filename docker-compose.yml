@@ -1,0 +1,53 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  db:
+    image: postgres:16-alpine
+    container_name: sensey-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: sensey_board
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # Sensey Board Application (production build)
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: sensey-app
+    restart: unless-stopped
+    ports:
+      - '3000:3000'
+    environment:
+      DATABASE_URL: postgresql://postgres:password@db:5432/sensey_board
+      DIRECT_URL: postgresql://postgres:password@db:5432/sensey_board
+      NEXTAUTH_SECRET: development-secret-change-in-production
+      NEXTAUTH_URL: http://localhost:3000
+      NODE_ENV: production
+      # Azure AD (optional for local)
+      AZURE_AD_CLIENT_ID: ""
+      AZURE_AD_CLIENT_SECRET: ""
+      AZURE_AD_TENANT_ID: ""
+    depends_on:
+      db:
+        condition: service_healthy
+    profiles:
+      - production
+
+volumes:
+  postgres_data:
+
+# Usage:
+# - Only database:     docker compose up -d
+# - Full application:  docker compose --profile production up -d
