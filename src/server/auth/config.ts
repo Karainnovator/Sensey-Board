@@ -52,18 +52,8 @@ declare module 'next-auth/jwt' {
  * - NEXTAUTH_SECRET
  * - NEXTAUTH_URL (e.g., http://localhost:3000)
  */
-// Only use adapter in production with real database
-const useAdapter =
-  process.env.NODE_ENV === 'production' || process.env.USE_DATABASE === 'true';
-
-// Create adapter only when needed
-const getAdapter = () => {
-  if (!useAdapter) return undefined;
-  return PrismaAdapter(prisma) as NextAuthOptions['adapter'];
-};
-
 export const authOptions: NextAuthOptions = {
-  adapter: getAdapter(),
+  adapter: PrismaAdapter(prisma) as NextAuthOptions['adapter'],
   providers: [
     // Development fallback - only works in dev mode
     CredentialsProvider({
