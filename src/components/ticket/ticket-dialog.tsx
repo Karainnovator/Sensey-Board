@@ -320,8 +320,10 @@ export function TicketDialog({
     });
   };
 
-  // Image upload handler
-  const handleImageUpload = async (file: File): Promise<string> => {
+  // File upload handler (images, PDFs, docs, etc.)
+  const handleFileUpload = async (
+    file: File
+  ): Promise<{ url: string; isImage: boolean; filename: string }> => {
     const formData = new FormData();
     formData.append('file', file);
     const response = await fetch('/api/upload', {
@@ -330,7 +332,11 @@ export function TicketDialog({
     });
     if (!response.ok) throw new Error('Upload failed');
     const data = await response.json();
-    return data.url;
+    return {
+      url: data.url,
+      isImage: data.isImage,
+      filename: data.filename ?? file.name,
+    };
   };
 
   // Render user select popover
@@ -478,7 +484,7 @@ export function TicketDialog({
                 {mode === 'edit' && (
                   <div className="space-y-1">
                     <Label className="text-xs font-medium text-muted-foreground">
-                      {t('ticket.status')}
+                      {t('ticket.statusField')}
                     </Label>
                     <Select
                       value={formData.status}
@@ -730,7 +736,7 @@ export function TicketDialog({
                 onChange={(v) => setFormData({ ...formData, description: v })}
                 placeholder={t('ticket.descriptionPlaceholder')}
                 className="flex-1 min-h-[300px]"
-                onImageUpload={handleImageUpload}
+                onFileUpload={handleFileUpload}
               />
             </div>
           </div>

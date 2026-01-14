@@ -70,6 +70,10 @@
     "childBoards": "Child Boards",
     "addChild": "Add Child",
     "parent": "Parent",
+    "selectParent": "Select parent board",
+    "noParent": "No parent (standalone)",
+    "includeSubBoards": "Include sub-boards",
+    "fromBoard": "From: {boardName}",
     "members": {
       "loading": "Loading members...",
       "title": "Board Members"
@@ -79,7 +83,8 @@
       "description": "Manage your board settings and members.",
       "tabs": {
         "general": "General",
-        "members": "Members"
+        "members": "Members",
+        "subBoards": "Sub-boards"
       },
       "boardName": "Board Name",
       "boardNamePlaceholder": "Enter board name",
@@ -114,7 +119,7 @@
     "assigneePlaceholder": "Select assignee...",
     "storyPointsField": "Story Points",
     "saveChanges": "Save Changes",
-    "status": "Status",
+    "statusField": "Status",
     "delete": "Delete",
     "moveToSprint": "Move to Sprint",
     "moveToBacklog": "Move to Backlog",
@@ -193,7 +198,9 @@
       "image": "Image",
       "preview": "Preview",
       "edit": "Edit",
-      "uploadImage": "Upload image"
+      "uploadImage": "Upload image",
+      "uploadFile": "Upload file",
+      "dropFiles": "Drop files here"
     },
     "inlineSubTickets": {
       "toggle": "Toggle sub-tickets",
@@ -314,6 +321,8 @@
     "storyPointsMin": "Min",
     "storyPointsMax": "Max",
     "project": "Project",
+    "board": "Board",
+    "allBoards": "All Boards",
     "myTickets": "My Tickets",
     "allTickets": "All Tickets"
   },

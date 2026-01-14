@@ -738,20 +738,31 @@ export const ticketRouter = createTRPCRouter({
           boardIds.push(...childBoards.map((b) => b.id));
         }
 
-        const whereClause: {
-          boardId: { in: string[] };
-          sprintId?: string;
-          backlogId?: string;
-          parentId?: null;
-        } = {
+        // Build where clause for tickets
+        // When includeChildBoards is true, we need to handle backlog/sprint filtering differently
+        // because child boards have their own backlogId/sprintId
+        const whereClause: Record<string, unknown> = {
           boardId: { in: boardIds },
         };
 
         if (input.sprintId) {
-          whereClause.sprintId = input.sprintId;
-        }
-        if (input.backlogId) {
-          whereClause.backlogId = input.backlogId;
+          // For sprint view: get all tickets with no sprint assigned when viewing child boards
+          // This lets us see backlog items from child boards in a combined view
+          if (input.includeChildBoards) {
+            // Get sprints from all boards that have the same sprint number/period
+            // For now, just filter by boardId since sprints are board-specific
+            whereClause.sprintId = input.sprintId;
+          } else {
+            whereClause.sprintId = input.sprintId;
+          }
+        } else if (input.backlogId) {
+          // For backlog view with child boards: get tickets that are in ANY backlog (not in a sprint)
+          if (input.includeChildBoards) {
+            whereClause.backlogId = { not: null };
+            whereClause.sprintId = null;
+          } else {
+            whereClause.backlogId = input.backlogId;
+          }
         }
 
         return await ctx.db.ticket.findMany({

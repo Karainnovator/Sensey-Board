@@ -19,11 +19,24 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
 import { User as UserIcon } from 'lucide-react';
 import { getPriorityLabel } from './ticket-priority-icon';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+  TooltipProvider,
+} from '@/components/ui/tooltip';
+import { useTranslations } from 'next-intl';
 
 interface TicketCardProps {
   ticket: Ticket & {
     assignee?: User | TicketUser | null;
     subTickets?: Ticket[];
+    board?: {
+      id: string;
+      name: string;
+      prefix: string;
+      color: string;
+    } | null;
   };
   onClick?: () => void;
   isDraggable?: boolean;
@@ -34,6 +47,7 @@ interface TicketCardProps {
   ) => Promise<void>;
   onQuickAddSubTicket?: (parentId: string, title: string) => Promise<void>;
   className?: string;
+  currentBoardId?: string;
 }
 
 export const TicketCard = memo(function TicketCard({
@@ -44,8 +58,14 @@ export const TicketCard = memo(function TicketCard({
   onSubTicketToggle,
   onQuickAddSubTicket,
   className,
+  currentBoardId,
 }: TicketCardProps) {
+  const t = useTranslations('board');
   const [isSubTicketsExpanded, setIsSubTicketsExpanded] = useState(false);
+
+  // Check if ticket is from a different board (sub-board ticket)
+  const isFromDifferentBoard =
+    currentBoardId && ticket.board && ticket.board.id !== currentBoardId;
 
   const {
     attributes,
@@ -111,10 +131,15 @@ export const TicketCard = memo(function TicketCard({
     }
   };
 
-  return (
+  const cardContent = (
     <div
       ref={setNodeRef}
-      style={style}
+      style={{
+        ...style,
+        ...(isFromDifferentBoard && ticket.board
+          ? { borderLeftColor: ticket.board.color, borderLeftWidth: '3px' }
+          : {}),
+      }}
       {...attributes}
       {...listeners}
       onClick={onClick}
@@ -188,6 +213,22 @@ export const TicketCard = memo(function TicketCard({
       </div>
     </div>
   );
+
+  // Wrap in tooltip if from different board
+  if (isFromDifferentBoard && ticket.board) {
+    return (
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>{cardContent}</TooltipTrigger>
+          <TooltipContent side="top">
+            <p>{t('fromBoard', { boardName: ticket.board.name })}</p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
+    );
+  }
+
+  return cardContent;
 });
 
 // Skeleton loading state for TicketCard

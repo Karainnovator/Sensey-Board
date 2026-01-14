@@ -25,6 +25,13 @@ import { useAuth } from '@/hooks/use-auth';
 import type { TicketFilters } from '@/lib/hooks/use-ticket-filters';
 import type { TicketStatus, TicketType, Priority } from '@prisma/client';
 
+interface ChildBoard {
+  id: string;
+  name: string;
+  prefix: string;
+  color: string;
+}
+
 interface TicketFilterPanelProps {
   filters: TicketFilters;
   onChange: (filters: TicketFilters) => void;
@@ -32,6 +39,8 @@ interface TicketFilterPanelProps {
   activeCount: number;
   availableAssignees?: { id: string; name: string }[];
   boardId: string;
+  childBoards?: ChildBoard[];
+  showBoardFilter?: boolean;
 }
 
 const STATUSES: TicketStatus[] = ['TODO', 'IN_PROGRESS', 'IN_REVIEW', 'DONE'];
@@ -70,6 +79,8 @@ export function TicketFilterPanel({
   activeCount,
   availableAssignees: _availableAssignees = [],
   boardId,
+  childBoards = [],
+  showBoardFilter = false,
 }: TicketFilterPanelProps) {
   const t = useTranslations('filters');
   const tCommon = useTranslations('common');
@@ -192,6 +203,48 @@ export function TicketFilterPanel({
                             style={{ backgroundColor: project.color }}
                           />
                           <span>{project.name}</span>
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <Separator />
+            </>
+          )}
+
+          {/* Board Filter (only shown when includeChildBoards is enabled) */}
+          {showBoardFilter && childBoards.length > 0 && (
+            <>
+              <div>
+                <Label className="text-xs font-medium text-gray-500">
+                  {t('board')}
+                </Label>
+                <Select
+                  value={filters.boardId || 'all'}
+                  onValueChange={(value) =>
+                    onChange({
+                      ...filters,
+                      boardId: value === 'all' ? null : value,
+                    })
+                  }
+                >
+                  <SelectTrigger className="mt-1">
+                    <SelectValue placeholder={t('allBoards')} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">{t('allBoards')}</SelectItem>
+                    {childBoards.map((board) => (
+                      <SelectItem key={board.id} value={board.id}>
+                        <div className="flex items-center gap-2">
+                          <div
+                            className="h-3 w-3 rounded"
+                            style={{ backgroundColor: board.color }}
+                          />
+                          <span>{board.name}</span>
+                          <span className="text-xs text-muted-foreground">
+                            ({board.prefix})
+                          </span>
                         </div>
                       </SelectItem>
                     ))}

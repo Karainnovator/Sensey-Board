@@ -57,7 +57,8 @@
       "description": "Beheer je bordinstellingen en leden.",
       "tabs": {
         "general": "Algemeen",
-        "members": "Leden"
+        "members": "Leden",
+        "subBoards": "Subborden"
       },
       "boardName": "Bordnaam",
       "boardNamePlaceholder": "Voer bordnaam in",
@@ -90,7 +91,11 @@
     "deleteConfirm": "Weet je zeker dat je dit bord wilt verwijderen?",
     "childBoards": "Subborden",
     "addChild": "Subbord Toevoegen",
-    "parent": "Hoofdbord"
+    "parent": "Hoofdbord",
+    "selectParent": "Selecteer hoofdbord",
+    "noParent": "Geen hoofdbord (zelfstandig)",
+    "includeSubBoards": "Inclusief subborden",
+    "fromBoard": "Van: {boardName}"
   },
   "ticket": {
     "title": "Tickets",
@@ -112,6 +117,7 @@
     "assigneePlaceholder": "Selecteer toegewezen persoon...",
     "storyPointsField": "Story Points",
     "saveChanges": "Wijzigingen Opslaan",
+    "statusField": "Status",
     "status": {
       "todo": "Te Doen",
       "inProgress": "In Uitvoering",
@@ -178,7 +184,9 @@
       "image": "Afbeelding",
       "preview": "Voorbeeld",
       "edit": "Bewerken",
-      "uploadImage": "Afbeelding uploaden"
+      "uploadImage": "Afbeelding uploaden",
+      "uploadFile": "Bestand uploaden",
+      "dropFiles": "Sleep bestanden hierheen"
     },
     "inlineSubTickets": {
       "toggle": "Sub-tickets wisselen",
@@ -310,6 +318,8 @@
     "storyPointsMin": "Min",
     "storyPointsMax": "Max",
     "project": "Project",
+    "board": "Bord",
+    "allBoards": "Alle Borden",
     "myTickets": "Mijn Tickets",
     "allTickets": "Alle Tickets"
   },

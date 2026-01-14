@@ -18,11 +18,21 @@ import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
+interface Sprint {
+  id: string;
+  name: string;
+  number: number;
+  status: string;
+}
+
 interface BacklogListProps {
   tickets: TicketWithRelations[];
   onTicketClick: (ticket: TicketWithRelations) => void;
   onCreateTicket: () => void;
   isLoading?: boolean;
+  sprints?: Sprint[];
+  onMoveToSprint?: (ticketId: string, sprintId: string) => void;
+  onDeleteTicket?: (ticketId: string) => void;
 }
 
 export function BacklogList({
@@ -30,6 +40,9 @@ export function BacklogList({
   onTicketClick,
   onCreateTicket,
   isLoading = false,
+  sprints = [],
+  onMoveToSprint,
+  onDeleteTicket,
 }: BacklogListProps) {
   const t = useTranslations();
   const [sortConfig, setSortConfig] = useState<
@@ -133,6 +146,10 @@ export function BacklogList({
                 key={ticket.id}
                 ticket={ticket}
                 onClick={() => onTicketClick(ticket)}
+                sprints={sprints}
+                isInBacklog={true}
+                onMoveToSprint={onMoveToSprint}
+                onDelete={onDeleteTicket}
               />
             ))
           )}

@@ -18,6 +18,16 @@ const nextConfig: NextConfig = {
     formats: ['image/avif', 'image/webp'],
     remotePatterns: [],
   },
+
+  // Rewrite old /uploads/* URLs to API route for dynamic file serving
+  async rewrites() {
+    return [
+      {
+        source: '/uploads/:path*',
+        destination: '/api/uploads/:path*',
+      },
+    ];
+  },
 };
 
 export default withNextIntl(nextConfig);

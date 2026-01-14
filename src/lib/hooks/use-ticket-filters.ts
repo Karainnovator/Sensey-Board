@@ -13,6 +13,7 @@ export interface TicketFilters {
   search: string;
   projectId?: string | null;
   assigneeId?: string | null; // For "My Tickets" filter
+  boardId?: string | null; // For filtering by board when viewing sub-board tickets
 }
 
 const defaultFilters: TicketFilters = {
@@ -25,6 +26,7 @@ const defaultFilters: TicketFilters = {
   search: '',
   projectId: null,
   assigneeId: null,
+  boardId: null,
 };
 
 export function useTicketFilters(initialFilters?: Partial<TicketFilters>) {
@@ -47,6 +49,7 @@ export function useTicketFilters(initialFilters?: Partial<TicketFilters>) {
     if (filters.search) count++;
     if (filters.projectId) count++;
     if (filters.assigneeId) count++;
+    if (filters.boardId) count++;
     return count;
   }, [filters]);
 
@@ -61,11 +64,16 @@ export function useTicketFilters(initialFilters?: Partial<TicketFilters>) {
         key?: string;
         title: string;
         projectId?: string | null;
+        boardId?: string;
       },
     >(
       tickets: T[]
     ) => {
       return tickets.filter((ticket) => {
+        // Board filter (for sub-board tickets)
+        if (filters.boardId && ticket.boardId !== filters.boardId) {
+          return false;
+        }
         // Assignee filter (for My Tickets)
         if (filters.assigneeId && ticket.assigneeId !== filters.assigneeId) {
           return false;

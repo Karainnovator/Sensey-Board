@@ -18,6 +18,13 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { trpc } from '@/lib/trpc';
 import { useRouter } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
@@ -26,6 +33,7 @@ interface CreateBoardDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   parentBoardId?: string;
+  showParentSelector?: boolean;
 }
 
 // Predefined color options
@@ -42,6 +50,7 @@ export function CreateBoardDialog({
   open,
   onOpenChange,
   parentBoardId,
+  showParentSelector = false,
 }: CreateBoardDialogProps) {
   const router = useRouter();
   const locale = useLocale();
@@ -52,7 +61,15 @@ export function CreateBoardDialog({
   const [selectedColor, setSelectedColor] = useState(
     BOARD_COLORS[0]?.value || '#FFB7C5'
   );
+  const [selectedParentId, setSelectedParentId] = useState<string | undefined>(
+    parentBoardId
+  );
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  // Fetch boards for parent selector
+  const { data: boards } = trpc.board.getAll.useQuery(undefined, {
+    enabled: showParentSelector && open,
+  });
 
   const createBoard = trpc.board.create.useMutation({
     onSuccess: (data) => {
@@ -103,7 +120,7 @@ export function CreateBoardDialog({
       description: description.trim() || undefined,
       prefix: prefix.toUpperCase(),
       color: selectedColor,
-      parentBoardId: parentBoardId,
+      parentBoardId: selectedParentId || parentBoardId,
     });
   };
 
@@ -113,6 +130,7 @@ export function CreateBoardDialog({
       setDescription('');
       setPrefix('');
       setSelectedColor(BOARD_COLORS[0]?.value || '#FFB7C5');
+      setSelectedParentId(parentBoardId);
       setErrors({});
       onOpenChange(false);
     }
@@ -198,6 +216,45 @@ export function CreateBoardDialog({
                 rows={3}
               />
             </div>
+
+            {/* Parent Board Selector */}
+            {showParentSelector && boards && (
+              <div className="space-y-2">
+                <Label htmlFor="parent-board">{t('board.parent')}</Label>
+                <Select
+                  value={selectedParentId || 'none'}
+                  onValueChange={(value) =>
+                    setSelectedParentId(value === 'none' ? undefined : value)
+                  }
+                  disabled={createBoard.isPending}
+                >
+                  <SelectTrigger id="parent-board">
+                    <SelectValue placeholder={t('board.selectParent')} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">
+                      <span className="text-muted-foreground">
+                        {t('board.noParent')}
+                      </span>
+                    </SelectItem>
+                    {boards.map((board) => (
+                      <SelectItem key={board.id} value={board.id}>
+                        <div className="flex items-center gap-2">
+                          <div
+                            className="w-3 h-3 rounded"
+                            style={{ backgroundColor: board.color }}
+                          />
+                          <span>{board.name}</span>
+                          <span className="text-xs text-muted-foreground">
+                            ({board.prefix})
+                          </span>
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
 
             {/* Board Color */}
             <div className="space-y-2">

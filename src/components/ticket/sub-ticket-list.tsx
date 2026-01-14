@@ -17,6 +17,12 @@ import type { Ticket } from '@prisma/client';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '@/components/ui/accordion';
 import { TicketTypeBadge } from './ticket-type-badge';
 import { TicketPriorityIcon } from './ticket-priority-icon';
 import { Plus, Trash2, GripVertical, ExternalLink } from 'lucide-react';
@@ -86,65 +92,76 @@ export function SubTicketList({
   };
 
   return (
-    <div className="space-y-3">
-      {/* Progress bar */}
-      {totalCount > 0 && (
-        <div className="flex items-center gap-3">
-          <div className="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
-            <div
-              className="h-full bg-sakura-400 rounded-full transition-all duration-300"
-              style={{ width: `${progressPercent}%` }}
-            />
+    <Accordion type="single" collapsible defaultValue="sub-tickets">
+      <AccordionItem value="sub-tickets" className="border-0">
+        <AccordionTrigger className="py-2 px-0 hover:no-underline hover:bg-gray-50 rounded-lg transition-colors">
+          <div className="flex items-center gap-3 flex-1">
+            <span className="text-sm font-semibold text-gray-700">
+              {t('title')} ({totalCount})
+            </span>
+            {totalCount > 0 && (
+              <>
+                <div className="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden max-w-[120px]">
+                  <div
+                    className="h-full bg-sakura-400 rounded-full transition-all duration-300"
+                    style={{ width: `${progressPercent}%` }}
+                  />
+                </div>
+                <span className="text-xs text-gray-500 whitespace-nowrap">
+                  {completedCount}/{totalCount}
+                </span>
+              </>
+            )}
           </div>
-          <span className="text-xs text-gray-500 whitespace-nowrap">
-            {completedCount}/{totalCount}
-          </span>
-        </div>
-      )}
+        </AccordionTrigger>
+        <AccordionContent className="pt-2">
+          <div className="space-y-3">
+            {/* Sub-ticket items */}
+            <div className="space-y-1">
+              {subTickets.map((subTicket) => (
+                <SubTicketRow
+                  key={subTicket.id}
+                  subTicket={subTicket}
+                  onToggleComplete={onToggleComplete}
+                  onDelete={onDelete}
+                  onUpdateTitle={onUpdateTitle}
+                  onOpen={onOpenSubTicket}
+                />
+              ))}
+            </div>
 
-      {/* Sub-ticket items */}
-      <div className="space-y-1">
-        {subTickets.map((subTicket) => (
-          <SubTicketRow
-            key={subTicket.id}
-            subTicket={subTicket}
-            onToggleComplete={onToggleComplete}
-            onDelete={onDelete}
-            onUpdateTitle={onUpdateTitle}
-            onOpen={onOpenSubTicket}
-          />
-        ))}
-      </div>
-
-      {/* Quick add (if no full dialog available) or Add button */}
-      {isQuickAdding && !onRequestCreateSubTicket ? (
-        <div className="flex items-center gap-2 py-1.5 px-2 -mx-2 rounded-md bg-gray-50">
-          <Checkbox disabled className="opacity-50" />
-          <Input
-            ref={inputRef}
-            value={newTitle}
-            onChange={(e) => setNewTitle(e.target.value)}
-            onKeyDown={handleKeyDown}
-            onBlur={() => {
-              if (!newTitle.trim()) setIsQuickAdding(false);
-            }}
-            placeholder={t('clickToAdd')}
-            className="h-7 border-0 bg-transparent shadow-none focus-visible:ring-0 px-0 text-sm"
-            disabled={isCreating}
-          />
-        </div>
-      ) : (
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={handleAddClick}
-          className="w-full justify-start gap-2 text-gray-500 hover:text-gray-700 h-8"
-        >
-          <Plus className="h-4 w-4" />
-          <span>{t('addNew')}</span>
-        </Button>
-      )}
-    </div>
+            {/* Quick add (if no full dialog available) or Add button */}
+            {isQuickAdding && !onRequestCreateSubTicket ? (
+              <div className="flex items-center gap-2 py-1.5 px-2 -mx-2 rounded-md bg-gray-50">
+                <Checkbox disabled className="opacity-50" />
+                <Input
+                  ref={inputRef}
+                  value={newTitle}
+                  onChange={(e) => setNewTitle(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  onBlur={() => {
+                    if (!newTitle.trim()) setIsQuickAdding(false);
+                  }}
+                  placeholder={t('clickToAdd')}
+                  className="h-7 border-0 bg-transparent shadow-none focus-visible:ring-0 px-0 text-sm"
+                  disabled={isCreating}
+                />
+              </div>
+            ) : (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleAddClick}
+                className="w-full justify-start gap-2 text-gray-500 hover:text-gray-700 h-8"
+              >
+                <Plus className="h-4 w-4" />
+                <span>{t('addNew')}</span>
+              </Button>
+            )}
+          </div>
+        </AccordionContent>
+      </AccordionItem>
+    </Accordion>
   );
 }
 

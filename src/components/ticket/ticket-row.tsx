@@ -16,10 +16,18 @@ import type { Ticket, User } from '@prisma/client';
 import type { TicketUser } from '@/types/database';
 import { TicketTypeBadge } from './ticket-type-badge';
 import { TicketPriorityIcon, getPriorityLabel } from './ticket-priority-icon';
+import { TicketActionsMenu } from './ticket-actions-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
 import { ChevronDown, ChevronRight, ChevronUp } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+
+interface Sprint {
+  id: string;
+  name: string;
+  number: number;
+  status: string;
+}
 
 interface TicketRowProps {
   ticket: Ticket & {
@@ -29,6 +37,11 @@ interface TicketRowProps {
   level?: number;
   onClick?: (ticket: Ticket & { assignee?: User | TicketUser | null }) => void;
   className?: string;
+  sprints?: Sprint[];
+  isInBacklog?: boolean;
+  onMoveToSprint?: (ticketId: string, sprintId: string) => void;
+  onMoveToBacklog?: (ticketId: string) => void;
+  onDelete?: (ticketId: string) => void;
 }
 
 const STATUS_DISPLAY = {
@@ -43,6 +56,11 @@ export function TicketRow({
   level = 0,
   onClick,
   className,
+  sprints = [],
+  isInBacklog = false,
+  onMoveToSprint,
+  onMoveToBacklog,
+  onDelete,
 }: TicketRowProps) {
   const t = useTranslations('ticket');
   const tCommon = useTranslations('common');
@@ -66,12 +84,13 @@ export function TicketRow({
       {/* Parent/Main Row */}
       <div
         className={cn(
-          'group flex items-center gap-4 border-b border-gray-100',
+          'group flex items-center gap-4 border-b border-gray-100 cursor-pointer',
           'transition-colors hover:bg-gray-50',
           level === 0 ? 'h-12' : 'h-10',
           className
         )}
         style={{ paddingLeft: `${indent + 16}px` }}
+        onClick={() => onClick?.(ticket)}
       >
         {/* Expand/Collapse Button */}
         <button
@@ -109,12 +128,9 @@ export function TicketRow({
 
         {/* Title */}
         <div className="min-w-0 flex-1">
-          <button
-            onClick={() => onClick?.(ticket)}
-            className="w-full truncate text-left text-sm text-gray-900 transition-colors hover:text-sakura-400"
-          >
+          <span className="w-full truncate text-left text-sm text-gray-900">
             {ticket.title}
-          </button>
+          </span>
         </div>
 
         {/* Priority with icon and text */}
@@ -175,6 +191,30 @@ export function TicketRow({
             </span>
           </div>
         </div>
+
+        {/* Actions Menu */}
+        {(onMoveToSprint || onMoveToBacklog || onDelete) && (
+          <div
+            className="w-10 flex-shrink-0"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <TicketActionsMenu
+              ticket={ticket}
+              sprints={sprints}
+              isInBacklog={isInBacklog}
+              onMoveToSprint={
+                onMoveToSprint
+                  ? (sprintId) => onMoveToSprint(ticket.id, sprintId)
+                  : undefined
+              }
+              onMoveToBacklog={
+                onMoveToBacklog ? () => onMoveToBacklog(ticket.id) : undefined
+              }
+              onDelete={onDelete ? () => onDelete(ticket.id) : undefined}
+              onEdit={() => onClick?.(ticket)}
+            />
+          </div>
+        )}
       </div>
 
       {/* Sub-tickets (recursively rendered) */}
@@ -263,6 +303,7 @@ export function TicketListHeader({
       <div className="w-32 flex-shrink-0">
         <SortableHeader column="status">{t('status')}</SortableHeader>
       </div>
+      <div className="w-10 flex-shrink-0" />
     </div>
   );
 }

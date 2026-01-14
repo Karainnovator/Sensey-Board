@@ -14,8 +14,9 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Trash2, Settings, Users } from 'lucide-react';
+import { Trash2, Settings, Users, FolderTree } from 'lucide-react';
 import { BoardMembersList } from './board-members-list';
+import { BoardHierarchy } from './board-hierarchy';
 import { trpc } from '@/lib/trpc';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
@@ -106,7 +107,7 @@ export function BoardSettingsDialog({
         </DialogHeader>
 
         <Tabs defaultValue="general" className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="general" className="gap-2">
               <Settings className="h-4 w-4" />
               {t('board.settings.tabs.general')}
@@ -114,6 +115,10 @@ export function BoardSettingsDialog({
             <TabsTrigger value="members" className="gap-2">
               <Users className="h-4 w-4" />
               {t('board.settings.tabs.members')}
+            </TabsTrigger>
+            <TabsTrigger value="subboards" className="gap-2">
+              <FolderTree className="h-4 w-4" />
+              {t('board.settings.tabs.subBoards')}
             </TabsTrigger>
           </TabsList>
 
@@ -216,6 +221,10 @@ export function BoardSettingsDialog({
               boardId={boardId}
               currentUserRole={currentUserRole}
             />
+          </TabsContent>
+
+          <TabsContent value="subboards" className="py-4">
+            <BoardHierarchy boardId={boardId} showAlways />
           </TabsContent>
         </Tabs>
       </DialogContent>

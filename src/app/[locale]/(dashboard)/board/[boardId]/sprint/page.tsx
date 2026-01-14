@@ -4,7 +4,14 @@ import { use, useState, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import { ViewToggle, type ViewMode } from '@/components/layout/view-toggle';
 import { Button } from '@/components/ui/button';
-import { Plus, Calendar } from 'lucide-react';
+import { Plus, Calendar, FolderTree } from 'lucide-react';
+import { Switch } from '@/components/ui/switch';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+  TooltipProvider,
+} from '@/components/ui/tooltip';
 import { trpc } from '@/lib/trpc';
 import { useAuth } from '@/hooks/use-auth';
 import { SprintList } from '@/components/sprint/sprint-list';
@@ -39,6 +46,7 @@ export default function SprintPage({ params }: SprintPageProps) {
   const [createWithParentId, setCreateWithParentId] = useState<string | null>(
     null
   ); // For creating sub-tickets
+  const [includeChildBoards, setIncludeChildBoards] = useState(false);
 
   const utils = trpc.useUtils();
 
@@ -69,6 +77,12 @@ export default function SprintPage({ params }: SprintPageProps) {
     [board?.members]
   );
 
+  // Fetch child boards for the sub-boards toggle
+  const { data: childBoards = [] } = trpc.board.getChildren.useQuery({
+    boardId: resolvedParams.boardId,
+  });
+  const hasChildBoards = childBoards.length > 0;
+
   // Determine which sprint to display
   const currentSprint = selectedSprintId
     ? (sprints.find((s) => s.id === selectedSprintId) ?? null)
@@ -78,15 +92,29 @@ export default function SprintPage({ params }: SprintPageProps) {
   const { data: sprintData, isLoading: sprintDataLoading } =
     trpc.sprint.getById.useQuery(
       { id: currentSprint?.id ?? '' },
-      { enabled: !!currentSprint?.id }
+      { enabled: !!currentSprint?.id && !includeChildBoards }
+    );
+
+  // Fetch tickets with child boards when toggle is enabled
+  const { data: hierarchyTickets = [], isLoading: hierarchyLoading } =
+    trpc.ticket.getWithHierarchy.useQuery(
+      {
+        boardId: resolvedParams.boardId,
+        includeChildBoards: true,
+        sprintId: currentSprint?.id,
+      },
+      { enabled: !!currentSprint?.id && includeChildBoards }
     );
 
   const tickets = useMemo(
-    () => sprintData?.tickets ?? [],
-    [sprintData?.tickets]
+    () =>
+      (includeChildBoards
+        ? hierarchyTickets
+        : (sprintData?.tickets ?? [])) as TicketWithRelations[],
+    [includeChildBoards, hierarchyTickets, sprintData?.tickets]
   );
   const filteredTickets = useMemo(
-    () => applyFilters(tickets),
+    () => applyFilters(tickets as TicketWithRelations[]),
     [tickets, applyFilters]
   );
 
@@ -212,7 +240,11 @@ export default function SprintPage({ params }: SprintPageProps) {
   const nextSprintNumber =
     sprints.length > 0 ? Math.max(...sprints.map((s) => s.number)) + 1 : 1;
 
-  const isLoading = sprintsLoading || activeSprintLoading || sprintDataLoading;
+  const isLoading =
+    sprintsLoading ||
+    activeSprintLoading ||
+    sprintDataLoading ||
+    hierarchyLoading;
 
   // Format date helper
   const formatDate = (date: Date | null | undefined) => {
@@ -301,6 +333,26 @@ export default function SprintPage({ params }: SprintPageProps) {
 
           {/* Right side: View toggle, filters, add ticket */}
           <div className="flex items-center gap-2">
+            {/* Sub-boards toggle */}
+            {hasChildBoards && (
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div className="flex items-center gap-2 rounded-md border border-neutral-200 px-2 py-1">
+                      <FolderTree className="h-4 w-4 text-neutral-500" />
+                      <Switch
+                        checked={includeChildBoards}
+                        onCheckedChange={setIncludeChildBoards}
+                        className="h-4 w-8"
+                      />
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>{t('board.includeSubBoards')}</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            )}
             <ViewToggle view={viewMode} onViewChange={setViewMode} />
             <TicketFilterPanel
               filters={filters}
@@ -308,6 +360,8 @@ export default function SprintPage({ params }: SprintPageProps) {
               onClear={clearFilters}
               activeCount={activeFilterCount}
               boardId={resolvedParams.boardId}
+              childBoards={childBoards}
+              showBoardFilter={includeChildBoards}
             />
             <Button size="sm" className="gap-1" onClick={handleCreateTicket}>
               <Plus className="h-4 w-4" />

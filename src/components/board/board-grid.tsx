@@ -73,6 +73,7 @@ export function BoardGrid({ boards, isLoading }: BoardGridProps) {
         <CreateBoardDialog
           open={createDialogOpen}
           onOpenChange={setCreateDialogOpen}
+          showParentSelector
         />
       </>
     );
@@ -112,6 +113,7 @@ export function BoardGrid({ boards, isLoading }: BoardGridProps) {
       <CreateBoardDialog
         open={createDialogOpen}
         onOpenChange={setCreateDialogOpen}
+        showParentSelector
       />
     </>
   );

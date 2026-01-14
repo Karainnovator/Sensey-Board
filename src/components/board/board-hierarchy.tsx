@@ -19,9 +19,13 @@ import { useLocale, useTranslations } from 'next-intl';
 
 interface BoardHierarchyProps {
   boardId: string;
+  showAlways?: boolean;
 }
 
-export function BoardHierarchy({ boardId }: BoardHierarchyProps) {
+export function BoardHierarchy({
+  boardId,
+  showAlways = false,
+}: BoardHierarchyProps) {
   const locale = useLocale();
   const t = useTranslations();
   const [createOpen, setCreateOpen] = useState(false);
@@ -35,7 +39,8 @@ export function BoardHierarchy({ boardId }: BoardHierarchyProps) {
     hierarchy.parentBoard ||
     (hierarchy.childBoards && hierarchy.childBoards.length > 0);
 
-  if (!hasHierarchy) return null;
+  // If not showAlways and no hierarchy, don't render
+  if (!hasHierarchy && !showAlways) return null;
 
   return (
     <div className="border rounded-lg p-4 bg-white space-y-4">
@@ -82,7 +87,8 @@ export function BoardHierarchy({ boardId }: BoardHierarchyProps) {
       )}
 
       {/* Child Boards */}
-      {hierarchy.childBoards && hierarchy.childBoards.length > 0 && (
+      {(showAlways ||
+        (hierarchy.childBoards && hierarchy.childBoards.length > 0)) && (
         <div className="space-y-2">
           <div className="flex items-center justify-between">
             <span className="text-sm font-medium text-gray-700">
@@ -98,29 +104,45 @@ export function BoardHierarchy({ boardId }: BoardHierarchyProps) {
               {t('board.addChild')}
             </Button>
           </div>
-          <div className="grid gap-2">
-            {hierarchy.childBoards.map((child) => (
-              <Link
-                key={child.id}
-                href={`/${locale}/board/${child.id}`}
-                className="flex items-center justify-between p-2 rounded-lg border hover:bg-gray-50 transition-colors"
+          {hierarchy.childBoards && hierarchy.childBoards.length > 0 ? (
+            <div className="grid gap-2">
+              {hierarchy.childBoards.map((child) => (
+                <Link
+                  key={child.id}
+                  href={`/${locale}/board/${child.id}`}
+                  className="flex items-center justify-between p-2 rounded-lg border hover:bg-gray-50 transition-colors"
+                >
+                  <div className="flex items-center gap-2">
+                    <div
+                      className="w-3 h-3 rounded"
+                      style={{ backgroundColor: child.color }}
+                    />
+                    <span className="font-medium">{child.name}</span>
+                    <Badge variant="secondary" className="text-xs">
+                      {child.prefix}
+                    </Badge>
+                  </div>
+                  <span className="text-sm text-gray-500">
+                    {child._count.tickets} {t('ticket.tickets')}
+                  </span>
+                </Link>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-6 text-gray-500">
+              <FolderTree className="h-8 w-8 mx-auto mb-2 opacity-50" />
+              <p className="text-sm">{t('board.noBoards')}</p>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => setCreateOpen(true)}
+                className="mt-3"
               >
-                <div className="flex items-center gap-2">
-                  <div
-                    className="w-3 h-3 rounded"
-                    style={{ backgroundColor: child.color }}
-                  />
-                  <span className="font-medium">{child.name}</span>
-                  <Badge variant="secondary" className="text-xs">
-                    {child.prefix}
-                  </Badge>
-                </div>
-                <span className="text-sm text-gray-500">
-                  {child._count.tickets} {t('ticket.tickets')}
-                </span>
-              </Link>
-            ))}
-          </div>
+                <Plus className="h-4 w-4 mr-2" />
+                {t('board.createChild')}
+              </Button>
+            </div>
+          )}
         </div>
       )}
 

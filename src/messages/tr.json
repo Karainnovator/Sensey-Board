@@ -57,7 +57,8 @@
       "description": "Pano ayarlarınızı ve üyelerinizi yönetin.",
       "tabs": {
         "general": "Genel",
-        "members": "Üyeler"
+        "members": "Üyeler",
+        "subBoards": "Alt Panolar"
       },
       "boardName": "Pano Adı",
       "boardNamePlaceholder": "Pano adını girin",
@@ -90,7 +91,11 @@
     "deleteConfirm": "Bu panoyu silmek istediğinizden emin misiniz?",
     "childBoards": "Alt Panolar",
     "addChild": "Alt Ekle",
-    "parent": "Üst"
+    "parent": "Üst",
+    "selectParent": "Üst pano seçin",
+    "noParent": "Üst yok (bağımsız)",
+    "includeSubBoards": "Alt panoları dahil et",
+    "fromBoard": "Kaynak: {boardName}"
   },
   "ticket": {
     "title": "Biletler",
@@ -112,6 +117,7 @@
     "assigneePlaceholder": "Atanan kişiyi seçin...",
     "storyPointsField": "Story Points",
     "saveChanges": "Değişiklikleri Kaydet",
+    "statusField": "Durum",
     "status": {
       "todo": "Yapılacak",
       "inProgress": "Devam Ediyor",
@@ -178,7 +184,9 @@
       "image": "Resim",
       "preview": "Önizleme",
       "edit": "Düzenle",
-      "uploadImage": "Resim yükle"
+      "uploadImage": "Resim yükle",
+      "uploadFile": "Dosya yükle",
+      "dropFiles": "Dosyaları buraya bırakın"
     },
     "inlineSubTickets": {
       "toggle": "Alt biletleri göster/gizle",
@@ -310,6 +318,8 @@
     "storyPointsMin": "Min",
     "storyPointsMax": "Maks",
     "project": "Proje",
+    "board": "Pano",
+    "allBoards": "Tüm Panolar",
     "myTickets": "Biletlerim",
     "allTickets": "Tüm Biletler"
   },

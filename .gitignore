@@ -79,3 +79,6 @@ ehthumbs.db
 # Backup files
 *.backup
 *.bak
+
+# Local uploads (dev only)
+public/uploads/
