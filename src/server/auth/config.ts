@@ -56,7 +56,14 @@ declare module 'next-auth/jwt' {
 const useAdapter =
   process.env.NODE_ENV === 'production' || process.env.USE_DATABASE === 'true';
 
+// Create adapter only when needed
+const getAdapter = () => {
+  if (!useAdapter) return undefined;
+  return PrismaAdapter(prisma) as NextAuthOptions['adapter'];
+};
+
 export const authOptions: NextAuthOptions = {
+  adapter: getAdapter(),
   providers: [
     // Development fallback - only works in dev mode
     CredentialsProvider({
@@ -96,10 +103,6 @@ export const authOptions: NextAuthOptions = {
       },
     }),
   ],
-  // Only use database adapter in production
-  ...(useAdapter && {
-    adapter: PrismaAdapter(prisma) as NextAuthOptions['adapter'],
-  }),
   callbacks: {
     /**
      * JWT callback - adds custom fields to the token
